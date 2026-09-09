@@ -26,7 +26,21 @@
     }
   ],
   "history": [],
-  "pendingChallenges": [],
+  "pendingChallenges": [
+    {
+      "id": "mttxhnznegqu",
+      "challengerId": "mttwohouna8y",
+      "challengerName": "拜托拜托",
+      "targetId": "mttwjw9jomu7",
+      "targetName": "她想让我积极进取",
+      "challengerRank": 2,
+      "targetRank": 1,
+      "evidence": "",
+      "note": "",
+      "status": "pending_approval",
+      "time": 1788948068531
+    }
+  ],
   "pendingPlayers": [],
   "totalChallenges": 0
 }
