@@ -1,12 +1,28 @@
 {
   "players": [
     {
+      "id": "d1",
+      "qqName": "鸣人",
+      "gameName": "Naruto_Uzumaki",
+      "rank": "影",
+      "wins": 12,
+      "losses": 3
+    },
+    {
       "id": "d2",
       "qqName": "佐助",
       "gameName": "Sasuke_Uchiha",
       "rank": "影",
       "wins": 10,
       "losses": 4
+    },
+    {
+      "id": "d3",
+      "qqName": "卡卡西",
+      "gameName": "Kakashi",
+      "rank": "上忍",
+      "wins": 8,
+      "losses": 5
     },
     {
       "id": "d4",
@@ -31,25 +47,10 @@
       "rank": "中忍",
       "wins": 2,
       "losses": 10
-    },
-    {
-      "id": "mttwcvja8xjl",
-      "qqName": "乐乐",
-      "gameName": "乐乐",
-      "rank": "",
-      "wins": 0,
-      "losses": 0
     }
   ],
   "history": [],
   "pendingChallenges": [],
-  "pendingPlayers": [
-    {
-      "id": "mttwhir4b5t6",
-      "qqName": "凛朝九",
-      "gameName": "独钓寒江雪ぃ",
-      "time": 1788946382128
-    }
-  ],
+  "pendingPlayers": [],
   "totalChallenges": 0
 }
