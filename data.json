@@ -11,6 +11,13 @@
   ],
   "history": [],
   "pendingChallenges": [],
-  "pendingPlayers": [],
+  "pendingPlayers": [
+    {
+      "id": "mttwohouna8y",
+      "qqName": "拜托拜托",
+      "gameName": "拜托拜托",
+      "time": 1788946707342
+    }
+  ],
   "totalChallenges": 0
 }
