@@ -1,14 +1,6 @@
 {
   "players": [
     {
-      "id": "d2",
-      "qqName": "佐助",
-      "gameName": "Sasuke_Uchiha",
-      "rank": "影",
-      "wins": 10,
-      "losses": 4
-    },
-    {
       "id": "d3",
       "qqName": "卡卡西",
       "gameName": "Kakashi",
