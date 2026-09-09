@@ -15,17 +15,18 @@
       "rank": "",
       "wins": 0,
       "losses": 0
-    }
-  ],
-  "history": [],
-  "pendingChallenges": [],
-  "pendingPlayers": [
+    },
     {
       "id": "mttwtfge5ivr",
       "qqName": "问剑白玉京",
       "gameName": "上杉绘梨衣",
-      "time": 1788946937726
+      "rank": "",
+      "wins": 0,
+      "losses": 0
     }
   ],
+  "history": [],
+  "pendingChallenges": [],
+  "pendingPlayers": [],
   "totalChallenges": 0
 }
