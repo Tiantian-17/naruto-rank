@@ -19,6 +19,13 @@
   ],
   "history": [],
   "pendingChallenges": [],
-  "pendingPlayers": [],
+  "pendingPlayers": [
+    {
+      "id": "mttwtfge5ivr",
+      "qqName": "问剑白玉京",
+      "gameName": "上杉绘梨衣",
+      "time": 1788946937726
+    }
+  ],
   "totalChallenges": 0
 }
