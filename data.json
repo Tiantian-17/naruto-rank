@@ -51,6 +51,13 @@
   ],
   "history": [],
   "pendingChallenges": [],
-  "pendingPlayers": [],
+  "pendingPlayers": [
+    {
+      "id": "mttwcvja8xjl",
+      "qqName": "乐乐",
+      "gameName": "乐乐",
+      "time": 1788946165415
+    }
+  ],
   "totalChallenges": 0
 }
