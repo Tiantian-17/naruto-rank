@@ -1,14 +1,6 @@
 {
   "players": [
     {
-      "id": "d5",
-      "qqName": "宁次",
-      "gameName": "Neji",
-      "rank": "中忍",
-      "wins": 4,
-      "losses": 8
-    },
-    {
       "id": "d6",
       "qqName": "小李",
       "gameName": "Rock_Lee",
