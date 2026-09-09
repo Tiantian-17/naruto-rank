@@ -1,0 +1,15 @@
+{
+  "players": [
+    {"id":"d1","qqName":"鸣人","gameName":"Naruto_Uzumaki","rank":"影","wins":12,"losses":3},
+    {"id":"d2","qqName":"佐助","gameName":"Sasuke_Uchiha","rank":"影","wins":10,"losses":4},
+    {"id":"d3","qqName":"卡卡西","gameName":"Kakashi","rank":"上忍","wins":8,"losses":5},
+    {"id":"d4","qqName":"我爱罗","gameName":"Gaara","rank":"上忍","wins":6,"losses":6},
+    {"id":"d5","qqName":"宁次","gameName":"Neji","rank":"中忍","wins":4,"losses":8},
+    {"id":"d6","qqName":"小李","gameName":"Rock_Lee","rank":"中忍","wins":2,"losses":10}
+  ],
+  "history": [],
+  "pendingChallenges": [],
+  "pendingPlayers": [],
+  "password": "admin123",
+  "totalChallenges": 0
+}
