@@ -51,6 +51,13 @@
   ],
   "history": [],
   "pendingChallenges": [],
-  "pendingPlayers": [],
+  "pendingPlayers": [
+    {
+      "id": "mttwjw9jomu7",
+      "qqName": "她想让我积极进取",
+      "gameName": "我妻善逸",
+      "time": 1788946492951
+    }
+  ],
   "totalChallenges": 0
 }
