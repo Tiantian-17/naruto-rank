@@ -159,7 +159,6 @@
   <div class="login-box">
     <div class="form-group"><label>管理密码</label><input class="form-input" id="adminPasswordInput" type="password" placeholder="请输入密码" autocomplete="off"></div>
     <button class="btn btn-primary btn-block" onclick="adminLogin()">登 录</button>
-    <p style="text-align:center;margin-top:10px;font-size:11px;color:var(--text-secondary);">默认密码：admin123</p>
   </div>
 </div>
 
@@ -267,12 +266,10 @@
   </div>
 </div>
 <div class="modal-overlay" id="githubConfigModal" style="display:none;">
-  <div class="modal"><div class="modal-handle"></div><h3>⚙️ GitHub 共享配置</h3><p class="modal-sub">配置后所有人的数据将自动同步</p>
-    <div class="form-group"><label>GitHub 用户名</label><input class="form-input" id="ghUser" placeholder="你的GitHub用户名"></div>
-    <div class="form-group"><label>仓库名</label><input class="form-input" id="ghRepo" placeholder="如 naruto-rank"></div>
-    <div class="form-group"><label>Personal Access Token</label><input class="form-input" id="ghToken" type="password" placeholder="ghp_xxxxxxxxxxxx"><p style="font-size:10px;color:var(--text-secondary);margin-top:3px;">需勾选 repo 权限，仅存在管理员本地</p></div>
-    <div class="form-group"><label>分支</label><input class="form-input" id="ghBranch" value="main" placeholder="main"></div>
-    <div class="modal-actions"><button class="btn btn-outline" onclick="closeGitHubConfig()">取消</button><button class="btn btn-primary" onclick="saveGitHubConfig()">保存配置</button></div>
+  <div class="modal"><div class="modal-handle"></div><h3>⚙️ 数据共享配置</h3><p class="modal-sub">数据已连接 GitHub，全群自动同步</p>
+    <div class="form-group"><label>数据仓库</label><div class="copy-box">18632721208 / naruto-rank / main</div></div>
+    <div class="form-group"><label>写入令牌（Token）</label><input class="form-input" id="ghToken" type="password" placeholder="ghp_xxxxxxxxxxxx"><p style="font-size:10px;color:var(--text-secondary);margin-top:3px;">通过分享链接自动带入，也可手动填写</p></div>
+    <div class="modal-actions"><button class="btn btn-outline" onclick="closeGitHubConfig()">取消</button><button class="btn btn-primary" onclick="saveGitHubConfig()">保存</button></div>
   </div>
 </div>
 
@@ -281,22 +278,27 @@
 const STORAGE_KEY='naruto_rank_v3';
 const DEFAULT_PASSWORD='admin123';
 
-let ghConfig={user:'',repo:'',token:'',branch:'main'};
+const GH_OWNER='18632721208';
+const GH_REPO='naruto-rank';
+const GH_BRANCH='main';
+
+let ghConfig={token:''};
 let cachedData=null;
 let syncTimer=null;
 
 function loadGhConfig(){
-  try{const r=localStorage.getItem('naruto_gh_config');if(r)ghConfig=JSON.parse(r);}catch(e){}
+  try{const r=localStorage.getItem('naruto_gh_config');if(r&&r.token)ghConfig=JSON.parse(r);}catch(e){}
+  if(!ghConfig.token){
+    const m=location.hash.match(/token=([^&#]+)/);
+    if(m){ghConfig.token=decodeURIComponent(m[1]);localStorage.setItem('naruto_gh_config',JSON.stringify(ghConfig));try{history.replaceState(null,'',location.pathname+location.search);}catch(e){}}
+  }
 }
 loadGhConfig();
 
-function isGhConfigured(){return !!(ghConfig.user&&ghConfig.repo&&ghConfig.token);}
-
-function getRawUrl(){return `https://raw.githubusercontent.com/${ghConfig.user}/${ghConfig.repo}/${ghConfig.branch}/data.json`;}
-function getApiUrl(){return `https://api.github.com/repos/${ghConfig.user}/${ghConfig.repo}/contents/data.json`;}
+function getRawUrl(){return `https://raw.githubusercontent.com/${GH_OWNER}/${GH_REPO}/${GH_BRANCH}/data.json`;}
+function getApiUrl(){return `https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/data.json`;}
 
 async function loadSharedData(){
-  if(!isGhConfigured()) return loadLocalData();
   try{
     const res=await fetch(getRawUrl()+'?t='+Date.now(),{cache:'no-store'});
     if(!res.ok) throw new Error('fetch failed');
@@ -312,7 +314,7 @@ async function loadSharedData(){
 }
 
 async function saveSharedData(d){
-  if(!isGhConfigured()){saveLocalData(d);return true;}
+  if(!ghConfig.token){saveLocalData(d);showToast('未配置写入令牌，请使用群内分享链接打开');return false;}
   try{
     let sha='';
     try{
@@ -321,7 +323,7 @@ async function saveSharedData(d){
     }catch(e){}
     const json=JSON.stringify(d,null,2);
     const content=btoa(unescape(encodeURIComponent(json)));
-    const body={message:'更新排行榜数据',content,branch:ghConfig.branch};
+    const body={message:'更新排行榜数据',content,branch:GH_BRANCH};
     if(sha) body.sha=sha;
     const putRes=await fetch(getApiUrl(),{method:'PUT',headers:{Authorization:`Bearer ${ghConfig.token}`,'Content-Type':'application/json'},body:JSON.stringify(body)});
     if(!putRes.ok){const err=await putRes.json();throw new Error(err.message||'save failed');}
@@ -339,7 +341,7 @@ async function saveSharedData(d){
 
 function loadLocalData(){
   try{const r=localStorage.getItem(STORAGE_KEY);if(r) return JSON.parse(r);}catch(e){}
-  return {players:[],history:[],pendingChallenges:[],pendingPlayers:[],password:DEFAULT_PASSWORD,totalChallenges:0};
+  return {players:[],history:[],pendingChallenges:[],pendingPlayers:[],totalChallenges:0};
 }
 function saveLocalData(d){localStorage.setItem(STORAGE_KEY,JSON.stringify(d));}
 
@@ -348,7 +350,7 @@ function updateSyncStatus(state){
   dots.forEach(dot=>{dot.classList.remove('syncing');dot.style.background=state==='synced'?'#4caf84':state==='syncing'?'#ff8c42':'var(--text-secondary)';});
   const texts=document.querySelectorAll('.sync-status');
   texts.forEach(t=>{
-    if(t.id==='globalSyncStatus'){t.innerHTML=`<span class="sync-dot" style="background:${isGhConfigured()?'#4caf84':'var(--text-secondary)'};"></span> ${isGhConfigured()?'数据共享已配置':'未配置共享数据'}`;return;}
+    if(t.id==='globalSyncStatus'){t.innerHTML=`<span class="sync-dot" style="background:#4caf84;"></span> 数据共享已连接`;return;}
     t.innerHTML=`<span class="sync-dot" style="background:${state==='synced'?'#4caf84':state==='syncing'?'#ff8c42':'var(--text-secondary)'};${state==='syncing'?'animation:pulse 1s infinite;':''}"></span> ${state==='synced'?'数据已同步':state==='syncing'?'同步中...':'同步失败'}`;
   });
 }
@@ -365,8 +367,8 @@ async function initDemo(){
     {id:'d5',qqName:'宁次',gameName:'Neji',rank:'中忍',wins:4,losses:8},
     {id:'d6',qqName:'小李',gameName:'Rock_Lee',rank:'中忍',wins:2,losses:10},
   ];
-  d.password=DEFAULT_PASSWORD;d.totalChallenges=0;d.history=[];d.pendingChallenges=[];d.pendingPlayers=[];
-  if(isGhConfigured()){await saveSharedData(d);}else{saveLocalData(d);}
+  d.totalChallenges=0;d.history=[];d.pendingChallenges=[];d.pendingPlayers=[];
+  await saveSharedData(d);
   return d;
 }
 
@@ -374,7 +376,6 @@ async function initDemo(){
 function startAutoRefresh(){
   if(syncTimer) clearInterval(syncTimer);
   syncTimer=setInterval(async()=>{
-    if(!isGhConfigured()) return;
     updateSyncStatus('syncing');
     const d=await loadSharedData();
     cachedData=d;
@@ -393,40 +394,28 @@ function goUser(){showPage('page-user-entry');document.getElementById('userQQNam
 
 // ==================== GitHub 配置 ====================
 function openGitHubConfig(){
-  document.getElementById('ghUser').value=ghConfig.user;
-  document.getElementById('ghRepo').value=ghConfig.repo;
   document.getElementById('ghToken').value=ghConfig.token;
-  document.getElementById('ghBranch').value=ghConfig.branch||'main';
   document.getElementById('githubConfigModal').style.display='flex';
 }
 function closeGitHubConfig(){document.getElementById('githubConfigModal').style.display='none';}
 async function saveGitHubConfig(){
-  ghConfig.user=document.getElementById('ghUser').value.trim();
-  ghConfig.repo=document.getElementById('ghRepo').value.trim();
-  ghConfig.token=document.getElementById('ghToken').value.trim();
-  ghConfig.branch=document.getElementById('ghBranch').value.trim()||'main';
+  ghConfig.token=document.getElementById('ghToken').value.trim()||'';
   localStorage.setItem('naruto_gh_config',JSON.stringify(ghConfig));
   closeGitHubConfig();
-  if(isGhConfigured()){
-    updateSyncStatus('syncing');
-    const d=loadLocalData();
-    await saveSharedData(d);
-    updateSyncStatus('synced');
-    showToast('GitHub配置已保存，数据已同步');
-  }else{
-    showToast('配置已清除，使用本地存储');
-  }
+  updateSyncStatus('syncing');
+  await saveSharedData(await loadSharedData());
   updateSyncStatus('synced');
+  showToast('配置已保存，数据已同步');
   if(document.getElementById('page-admin-panel').classList.contains('active')) renderAdminTabs();
 }
 
 // ==================== 管理员 ====================
 let adminLoggedIn=false;
+function getAdminPassword(){return localStorage.getItem('naruto_admin_pwd')||DEFAULT_PASSWORD;}
 async function adminLogin(){
   const pw=document.getElementById('adminPasswordInput').value.trim();
-  const d=await loadSharedData();
   if(!pw){showToast('请输入密码');return;}
-  if(pw!==d.password){showToast('密码错误');return;}
+  if(pw!==getAdminPassword()){showToast('密码错误');return;}
   adminLoggedIn=true;showPage('page-admin-panel');switchAdminTab('approval');
 }
 
@@ -546,10 +535,8 @@ async function adminMoveUp(i){if(i<=0)return;const d=await loadSharedData();[d.p
 async function adminMoveDown(i){const d=await loadSharedData();if(i>=d.players.length-1)return;[d.players[i],d.players[i+1]]=[d.players[i+1],d.players[i]];await saveSharedData(d);renderAdminTabs();}
 async function adminReset(){
   if(confirm('确定重置全部数据吗？')){
-    if(isGhConfigured()){
-      await saveSharedData({players:[],history:[],pendingChallenges:[],pendingPlayers:[],password:DEFAULT_PASSWORD,totalChallenges:0});
-      await initDemo();
-    }else{localStorage.removeItem(STORAGE_KEY);}
+    await saveSharedData({players:[],history:[],pendingChallenges:[],pendingPlayers:[],totalChallenges:0});
+    await initDemo();
     switchAdminTab('approval');showToast('数据已重置');
   }
 }
@@ -583,11 +570,10 @@ async function changePassword(){
   const oldPwd=document.getElementById('oldPasswordInput').value.trim();
   const newPwd=document.getElementById('newPasswordInput').value.trim();
   const confirmPwd=document.getElementById('confirmPasswordInput').value.trim();
-  const d=await loadSharedData();
-  if(oldPwd!==d.password){showToast('当前密码错误');return;}
+  if(oldPwd!==getAdminPassword()){showToast('当前密码错误');return;}
   if(newPwd.length<4){showToast('新密码至少4位');return;}
   if(newPwd!==confirmPwd){showToast('两次输入不一致');return;}
-  d.password=newPwd;await saveSharedData(d);closePasswordModal();showToast('密码修改成功');
+  localStorage.setItem('naruto_admin_pwd',newPwd);closePasswordModal();showToast('密码修改成功');
 }
 
 // ==================== 玩家 ====================
