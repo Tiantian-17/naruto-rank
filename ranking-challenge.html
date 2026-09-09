@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>河北工程大学火影忍者排位挑战赛</title>
+<style>
+  :root{--bg:#0d0d0d;--card-bg:#1a1a1a;--text:#e0e0e0;--text-secondary:#999;--accent:#ff6b35;--accent2:#ff4444;--gold:#ffd700;--silver:#c0c0c0;--bronze:#cd7f32;--win:#4caf84;--lose:#e0556a;--radius:14px;--transition:0.25s ease;}
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;min-height:100dvh;overflow-x:hidden;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none;}
+  body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at 30% 20%,rgba(255,107,53,0.06) 0%,transparent 50%),radial-gradient(ellipse at 70% 60%,rgba(255,68,68,0.05) 0%,transparent 50%);pointer-events:none;z-index:0;}
+  .page{position:relative;z-index:1;max-width:480px;margin:0 auto;padding:20px 16px 100px;min-height:100vh;min-height:100dvh;display:none;}
+  .page.active{display:block;}
+  .header{text-align:center;padding:20px 0 14px;}
+  .header-icon{font-size:40px;display:block;margin-bottom:6px;animation:float 3s ease-in-out infinite;}
+  @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+  .header h1{font-size:22px;font-weight:800;letter-spacing:1px;background:linear-gradient(135deg,#ff6b35,#ff4444,#ff6b35);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+  .header .subtitle{font-size:12px;color:var(--text-secondary);margin-top:3px;}
+  .btn{padding:13px 16px;border:none;border-radius:var(--radius);font-size:15px;font-weight:600;cursor:pointer;transition:var(--transition);font-family:inherit;display:flex;align-items:center;justify-content:center;gap:6px;letter-spacing:0.5px;}
+  .btn:active{transform:scale(0.96);}
+  .btn-primary{background:linear-gradient(135deg,#ff6b35,#e55a25);color:#fff;box-shadow:0 4px 20px rgba(255,107,53,0.3);}
+  .btn-outline{background:transparent;color:var(--text);border:1.5px solid rgba(255,255,255,0.2);}
+  .btn-outline:hover{border-color:rgba(255,255,255,0.4);}
+  .btn-danger{background:transparent;color:var(--lose);border:1.5px solid rgba(224,85,106,0.3);font-size:13px;padding:10px 14px;}
+  .btn-small{padding:8px 14px;font-size:13px;border-radius:10px;}
+  .btn-block{width:100%;}
+  .btn-icon{width:34px;height:34px;padding:0;border-radius:10px;font-size:16px;flex-shrink:0;}
+  .btn-approve{background:linear-gradient(135deg,#4caf84,#3d9e6e);color:#fff;}
+  .btn-reject{background:linear-gradient(135deg,#e0556a,#c94458);color:#fff;}
+  .btn:disabled{opacity:0.5;pointer-events:none;}
+  .entry-cards{display:flex;flex-direction:column;gap:14px;margin-top:28px;}
+  .entry-card{background:var(--card-bg);border-radius:var(--radius);padding:22px;text-align:center;cursor:pointer;border:1.5px solid rgba(255,255,255,0.08);transition:var(--transition);}
+  .entry-card:active{transform:scale(0.97);}
+  .entry-card.admin-card:hover,.entry-card.admin-card:active{border-color:var(--accent);box-shadow:0 0 25px rgba(255,107,53,0.15);}
+  .entry-card.user-card:hover,.entry-card.user-card:active{border-color:#5cb8ff;box-shadow:0 0 25px rgba(92,184,255,0.15);}
+  .entry-card .entry-icon{font-size:44px;display:block;margin-bottom:10px;}
+  .entry-card .entry-title{font-size:19px;font-weight:700;margin-bottom:4px;}
+  .entry-card .entry-desc{font-size:13px;color:var(--text-secondary);}
+  .entry-card.admin-card .entry-title{color:var(--accent);}
+  .entry-card.user-card .entry-title{color:#5cb8ff;}
+  .login-box{background:var(--card-bg);border-radius:var(--radius);padding:22px;margin-top:18px;border:1px solid rgba(255,255,255,0.08);}
+  .form-group{margin-bottom:13px;}
+  .form-group label{display:block;font-size:13px;font-weight:600;color:var(--text-secondary);margin-bottom:5px;}
+  .form-input{width:100%;padding:13px 15px;background:rgba(255,255,255,0.06);border:1.5px solid rgba(255,255,255,0.12);border-radius:11px;color:var(--text);font-size:15px;font-family:inherit;outline:none;transition:var(--transition);}
+  .form-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(255,107,53,0.12);}
+  .form-input::placeholder{color:rgba(255,255,255,0.2);}
+  .form-row{display:flex;gap:8px;}
+  textarea.form-input{resize:vertical;min-height:70px;}
+  .stats-bar{display:flex;gap:8px;margin-bottom:18px;}
+  .stat-card{flex:1;background:var(--card-bg);border-radius:var(--radius);padding:12px 10px;text-align:center;border:1px solid rgba(255,255,255,0.06);}
+  .stat-card .stat-value{font-size:22px;font-weight:700;color:var(--accent);}
+  .stat-card .stat-label{font-size:11px;color:var(--text-secondary);margin-top:2px;}
+  .tabs{display:flex;gap:4px;margin-bottom:16px;background:var(--card-bg);border-radius:12px;padding:4px;}
+  .tab-btn{flex:1;padding:10px 8px;border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;transition:var(--transition);font-family:inherit;background:transparent;color:var(--text-secondary);}
+  .tab-btn.active{background:var(--accent);color:#fff;}
+  .tab-content{display:none;}
+  .tab-content.active{display:block;}
+  .section-title{font-size:15px;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+  .section-title::before{content:'';width:3px;height:16px;background:var(--accent);border-radius:2px;}
+  .rank-list{display:flex;flex-direction:column;gap:8px;}
+  .rank-card{background:var(--card-bg);border-radius:var(--radius);padding:13px 14px;display:flex;align-items:center;gap:12px;border:1px solid rgba(255,255,255,0.06);transition:var(--transition);}
+  .rank-card.me{border-color:var(--accent);box-shadow:0 0 16px rgba(255,107,53,0.2);}
+  .rank-badge{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;flex-shrink:0;}
+  .rank-badge.top1{background:linear-gradient(135deg,#ffd700,#ffb800);color:#5c3d00;font-size:18px;box-shadow:0 0 16px rgba(255,215,0,0.35);}
+  .rank-badge.top2{background:linear-gradient(135deg,#c0c0c0,#a8a8a8);color:#3a3a3a;font-size:17px;}
+  .rank-badge.top3{background:linear-gradient(135deg,#cd7f32,#b8702a);color:#fff;font-size:17px;}
+  .rank-badge.normal{background:rgba(255,255,255,0.08);color:var(--text-secondary);}
+  .player-info{flex:1;min-width:0;}
+  .player-name{font-size:15px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .player-name .game-name{font-size:11px;color:var(--accent);margin-left:4px;}
+  .player-record{font-size:11px;color:var(--text-secondary);margin-top:2px;}
+  .player-record .wins{color:var(--win);}.player-record .losses{color:var(--lose);}
+  .player-rank-tag{font-size:10px;padding:2px 8px;border-radius:10px;font-weight:600;flex-shrink:0;background:rgba(255,107,53,0.15);color:var(--accent);}
+  .challenge-btn{padding:7px 14px;border-radius:18px;border:none;background:linear-gradient(135deg,#ff6b35,#e55a25);color:#fff;font-weight:700;font-size:12px;cursor:pointer;flex-shrink:0;transition:var(--transition);font-family:inherit;}
+  .challenge-btn:active{transform:scale(0.93);}
+  .user-info-bar{background:var(--card-bg);border-radius:var(--radius);padding:13px 14px;display:flex;align-items:center;gap:10px;margin-bottom:18px;border:1px solid rgba(255,107,53,0.2);}
+  .user-info-bar .user-avatar{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
+  .user-info-bar .user-detail{flex:1;min-width:0;}
+  .user-info-bar .user-detail .uname{font-weight:700;font-size:14px;}
+  .user-info-bar .user-detail .ustats{font-size:11px;color:var(--text-secondary);margin-top:2px;}
+  .user-info-bar .user-rank{font-size:26px;font-weight:800;color:var(--accent);flex-shrink:0;}
+  .pending-section{background:rgba(255,107,53,0.06);border:1.5px solid rgba(255,107,53,0.25);border-radius:var(--radius);padding:14px;margin-bottom:14px;}
+  .pending-section .pending-header{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+  .pending-section .pending-count{background:var(--accent);color:#fff;font-size:11px;font-weight:700;padding:2px 9px;border-radius:10px;}
+  .pending-section .pending-title{font-size:14px;font-weight:700;color:var(--accent);}
+  .pending-item{background:rgba(255,255,255,0.03);border-radius:10px;padding:12px 14px;margin-bottom:7px;border:1px solid rgba(255,255,255,0.05);}
+  .pending-item:last-child{margin-bottom:0;}
+  .pending-item .pending-info{margin-bottom:9px;}
+  .pending-item .pending-vs{display:flex;align-items:center;gap:7px;font-size:14px;font-weight:600;}
+  .pending-item .pending-vs .vs-icon{color:var(--accent);font-size:18px;}
+  .pending-item .pending-meta{font-size:11px;color:var(--text-secondary);margin-top:3px;}
+  .pending-item .pending-evidence{font-size:11px;color:var(--accent);margin-top:2px;word-break:break-all;}
+  .pending-item .pending-actions{display:flex;gap:7px;}
+  .pending-item .pending-actions .btn{flex:1;padding:9px;font-size:13px;}
+  .empty-state{text-align:center;padding:36px 20px;color:var(--text-secondary);}
+  .empty-state .empty-icon{font-size:48px;display:block;margin-bottom:12px;opacity:0.5;}
+  .empty-state p{font-size:14px;line-height:1.6;}
+  .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:100;display:flex;align-items:flex-end;justify-content:center;animation:fadeIn 0.2s ease;}
+  @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+  .modal{background:#1a1a1a;border-radius:18px 18px 0 0;width:100%;max-width:480px;max-height:82vh;overflow-y:auto;padding:18px;animation:slideUp 0.3s ease;}
+  @keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+  .modal-handle{width:32px;height:4px;background:rgba(255,255,255,0.2);border-radius:2px;margin:0 auto 14px;}
+  .modal h3{font-size:17px;font-weight:700;margin-bottom:4px;text-align:center;}
+  .modal .modal-sub{font-size:12px;color:var(--text-secondary);text-align:center;margin-bottom:16px;}
+  .modal-actions{display:flex;gap:9px;margin-top:16px;}
+  .modal-actions .btn{flex:1;}
+  .result-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:200;display:flex;align-items:center;justify-content:center;animation:fadeIn 0.2s ease;}
+  .result-card{text-align:center;padding:28px 22px;animation:resultBounce 0.5s cubic-bezier(0.175,0.885,0.32,1.275);}
+  @keyframes resultBounce{from{transform:scale(0.3);opacity:0}to{transform:scale(1);opacity:1}}
+  .result-icon{font-size:64px;display:block;margin-bottom:12px;}
+  .result-icon.win{animation:winPulse 0.6s ease-in-out infinite alternate;}
+  @keyframes winPulse{from{transform:scale(1)}to{transform:scale(1.1)}}
+  .result-icon.lose{animation:shake 0.5s ease;}
+  @keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-10px)}40%{transform:translateX(10px)}60%{transform:translateX(-6px)}80%{transform:translateX(6px)}}
+  .result-title{font-size:26px;font-weight:800;margin-bottom:6px;}
+  .result-title.win{color:var(--win);}.result-title.lose{color:var(--lose);}
+  .result-detail{font-size:13px;color:var(--text-secondary);margin-bottom:20px;line-height:1.6;}
+  .result-detail .highlight{color:var(--text);font-weight:600;}
+  .history-list{display:flex;flex-direction:column;gap:5px;max-height:280px;overflow-y:auto;}
+  .history-item{display:flex;align-items:center;gap:9px;padding:9px 11px;background:rgba(255,255,255,0.03);border-radius:9px;font-size:12px;}
+  .history-item .h-result{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;}
+  .history-item .h-result.win-h{background:rgba(76,175,132,0.15);}.history-item .h-result.lose-h{background:rgba(224,85,106,0.15);}
+  .history-item .h-text{flex:1;color:var(--text-secondary);}.history-item .h-text strong{color:var(--text);}
+  .history-item .h-time{font-size:10px;color:var(--text-secondary);flex-shrink:0;}
+  .pending-banner{background:rgba(255,107,53,0.08);border:1px solid rgba(255,107,53,0.25);border-radius:10px;padding:10px 14px;margin-bottom:14px;font-size:12px;color:var(--accent);display:flex;align-items:center;gap:8px;}
+  .toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:9px 18px;border-radius:18px;font-size:13px;z-index:300;pointer-events:none;animation:toastIn 0.3s ease,toastOut 0.3s ease 1.7s forwards;}
+  @keyframes toastIn{from{transform:translateX(-50%) translateY(-20px);opacity:0}to{transform:translateX(-50%) translateY(0);opacity:1}}
+  @keyframes toastOut{from{opacity:1}to{opacity:0}}
+  .back-link{display:inline-flex;align-items:center;gap:4px;font-size:13px;color:var(--text-secondary);cursor:pointer;padding:6px 0;margin-bottom:8px;background:none;border:none;font-family:inherit;}
+  .back-link:hover{color:var(--text);}
+  .admin-actions{display:flex;gap:5px;flex-shrink:0;}
+  .sync-status{font-size:10px;color:var(--text-secondary);text-align:center;margin-top:6px;display:flex;align-items:center;justify-content:center;gap:4px;}
+  .sync-dot{width:6px;height:6px;border-radius:50%;background:#4caf84;display:inline-block;}
+  .sync-dot.syncing{background:#ff8c42;animation:pulse 1s infinite;}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+  .config-box{background:rgba(255,180,70,0.06);border:1.5px solid rgba(255,180,70,0.25);border-radius:var(--radius);padding:14px;margin-bottom:14px;}
+  .config-box .config-title{font-size:14px;font-weight:700;color:#ff8c42;margin-bottom:10px;}
+  .config-box .form-input{font-size:13px;padding:10px 12px;margin-bottom:6px;}
+  .copy-box{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:10px;padding:12px;font-size:13px;word-break:break-all;margin-top:8px;line-height:1.6;user-select:text;-webkit-user-select:text;}
+  ::-webkit-scrollbar{width:4px;}::-webkit-scrollbar-track{background:transparent;}::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.1);border-radius:2px;}
+</style>
+</head>
+<body>
+
+<!-- 入口页 -->
+<div class="page active" id="page-entry">
+  <div class="header"><span class="header-icon">🍥</span><h1>河北工程大学火影忍者排位挑战赛</h1><p class="subtitle">下克上 · 以弱胜强 · 忍道巅峰</p></div>
+  <div class="entry-cards">
+    <div class="entry-card admin-card" onclick="goAdmin()"><span class="entry-icon">🔐</span><div class="entry-title">管理员入口</div><div class="entry-desc">审批 · 裁决 · 管理排行榜</div></div>
+    <div class="entry-card user-card" onclick="goUser()"><span class="entry-icon">🍥</span><div class="entry-title">忍者入口</div><div class="entry-desc">绑定身份 · 发起挑战 · 查看排名</div></div>
+  </div>
+  <div class="sync-status" id="globalSyncStatus"><span class="sync-dot" style="background:var(--text-secondary);"></span> 未配置共享数据</div>
+</div>
+
+<!-- 管理员登录 -->
+<div class="page" id="page-admin-login">
+  <button class="back-link" onclick="goEntry()">← 返回</button>
+  <div class="header"><span class="header-icon">🔐</span><h1>管理员登录</h1><p class="subtitle">请输入管理密码</p></div>
+  <div class="login-box">
+    <div class="form-group"><label>管理密码</label><input class="form-input" id="adminPasswordInput" type="password" placeholder="请输入密码" autocomplete="off"></div>
+    <button class="btn btn-primary btn-block" onclick="adminLogin()">登 录</button>
+    <p style="text-align:center;margin-top:10px;font-size:11px;color:var(--text-secondary);">默认密码：admin123</p>
+  </div>
+</div>
+
+<!-- 管理员面板 -->
+<div class="page" id="page-admin-panel">
+  <button class="back-link" onclick="adminLogout()">← 退出登录</button>
+  <div class="header"><span class="header-icon">🛡️</span><h1>管理员工作台</h1><p class="subtitle">审批 · 裁决 · 管理</p></div>
+  <div class="stats-bar">
+    <div class="stat-card"><div class="stat-value" id="adminTotalPlayers">0</div><div class="stat-label">忍者总数</div></div>
+    <div class="stat-card"><div class="stat-value" id="adminTotalChallenges">0</div><div class="stat-label">挑战次数</div></div>
+    <div class="stat-card"><div class="stat-value" id="adminPendingTotal" style="color:var(--accent);">0</div><div class="stat-label">待处理</div></div>
+  </div>
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchAdminTab('approval')">📋 审批</button>
+    <button class="tab-btn" onclick="switchAdminTab('judge')">⚔️ 裁决</button>
+    <button class="tab-btn" onclick="switchAdminTab('manage')">👥 管理</button>
+  </div>
+  <div class="tab-content active" id="tab-approval"></div>
+  <div class="tab-content" id="tab-judge"></div>
+  <div class="tab-content" id="tab-manage"></div>
+  <div style="display:flex;gap:8px;margin-top:16px;">
+    <button class="btn btn-outline btn-small" style="flex:1;" onclick="openAdminHistory()">📋 挑战记录</button>
+    <button class="btn btn-outline btn-small" style="flex:1;" onclick="openChangePassword()">🔑 改密码</button>
+  </div>
+  <div style="display:flex;gap:8px;margin-top:8px;">
+    <button class="btn btn-outline btn-small" style="flex:1;" onclick="openGitHubConfig()">⚙️ GitHub配置</button>
+  </div>
+  <div style="text-align:center;margin-top:10px;"><button class="btn btn-danger" onclick="adminReset()">🗑 重置数据</button></div>
+  <div class="sync-status" id="adminSyncStatus"><span class="sync-dot"></span> 数据已同步</div>
+</div>
+
+<!-- 玩家入口 -->
+<div class="page" id="page-user-entry">
+  <button class="back-link" onclick="goEntry()">← 返回</button>
+  <div class="header"><span class="header-icon">🍥</span><h1>忍者入口</h1><p class="subtitle">绑定身份，踏上忍道</p></div>
+  <div class="login-box">
+    <div class="form-group"><label>QQ群昵称</label><input class="form-input" id="userQQName" placeholder="请输入你的QQ群昵称" maxlength="12" autocomplete="off"></div>
+    <div class="form-group"><label>火影游戏内名称</label><input class="form-input" id="userGameName" placeholder="请输入火影游戏内名称" maxlength="16" autocomplete="off"></div>
+    <button class="btn btn-primary btn-block" onclick="userEnter()">进入排位赛</button>
+    <button class="btn btn-outline btn-block" onclick="viewRankOnly()" style="margin-top:8px;">👀 仅查看排行榜</button>
+    <p style="text-align:center;margin-top:10px;font-size:11px;color:var(--text-secondary);">新忍者需管理员审核通过后加入排行榜</p>
+  </div>
+  <div class="sync-status" id="userSyncStatus"><span class="sync-dot" style="background:var(--text-secondary);"></span> 加载中...</div>
+</div>
+
+<!-- 玩家面板 -->
+<div class="page" id="page-user-panel">
+  <button class="back-link" onclick="userLogout()">← 切换忍者</button>
+  <div class="header"><span class="header-icon">⚔️</span><h1>排位挑战赛</h1><p class="subtitle">下克上 · 只能挑战高一位的对手</p></div>
+  <div class="user-info-bar" id="userInfoBar"></div>
+  <div class="section-title">🏆 排行榜</div>
+  <div class="rank-list" id="userRankList"></div>
+  <div class="sync-status" id="panelSyncStatus"><span class="sync-dot"></span> 数据已同步</div>
+</div>
+
+<!-- 访客排行榜 -->
+<div class="page" id="page-guest-view">
+  <button class="back-link" onclick="guestGoBack()">← 返回</button>
+  <div class="header"><span class="header-icon">🏆</span><h1>排行榜</h1><p class="subtitle">河北工程大学火影忍者排位挑战赛</p></div>
+  <div class="stats-bar">
+    <div class="stat-card"><div class="stat-value" id="guestTotalPlayers">0</div><div class="stat-label">参赛忍者</div></div>
+    <div class="stat-card"><div class="stat-value" id="guestTotalChallenges">0</div><div class="stat-label">挑战次数</div></div>
+  </div>
+  <div class="section-title">🏆 排行榜</div>
+  <div class="rank-list" id="guestRankList"></div>
+  <div style="text-align:center;margin-top:18px;"><button class="btn btn-primary" onclick="goUser()">🍥 我也要参加</button></div>
+  <div class="sync-status" id="guestSyncStatus"><span class="sync-dot"></span> 数据已同步</div>
+</div>
+
+<!-- 弹窗 -->
+<div class="modal-overlay" id="challengeFormModal" style="display:none;">
+  <div class="modal">
+    <div class="modal-handle"></div><h3>⚔️ 发起挑战</h3><p class="modal-sub" id="challengeFormSub"></p>
+    <div class="form-group"><label>对战凭证（截图/视频链接）</label><input class="form-input" id="challengeEvidence" placeholder="请输入对战截图或视频链接"></div>
+    <div class="form-group"><label>挑战备注（可选）</label><textarea class="form-input" id="challengeNote" placeholder="选填：对战说明..." rows="2"></textarea></div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeChallengeForm()">取消</button>
+      <button class="btn btn-primary" onclick="submitChallenge()">提交挑战</button>
+    </div>
+  </div>
+</div>
+<div class="result-overlay" id="resultOverlay" style="display:none;"><div class="result-card" id="resultCard"></div></div>
+
+<div class="modal-overlay" id="historyModal" style="display:none;">
+  <div class="modal"><div class="modal-handle"></div><h3>📋 挑战记录</h3><p class="modal-sub">最近的挑战历史</p><div class="history-list" id="historyList"></div><div class="modal-actions"><button class="btn btn-outline" onclick="closeHistoryModal()">关闭</button></div></div>
+</div>
+<div class="modal-overlay" id="passwordModal" style="display:none;">
+  <div class="modal"><div class="modal-handle"></div><h3>🔑 修改密码</h3>
+    <div class="form-group"><label>当前密码</label><input class="form-input" id="oldPasswordInput" type="password" placeholder="当前密码"></div>
+    <div class="form-group"><label>新密码</label><input class="form-input" id="newPasswordInput" type="password" placeholder="新密码（至少4位）"></div>
+    <div class="form-group"><label>确认新密码</label><input class="form-input" id="confirmPasswordInput" type="password" placeholder="确认新密码"></div>
+    <div class="modal-actions"><button class="btn btn-outline" onclick="closePasswordModal()">取消</button><button class="btn btn-primary" onclick="changePassword()">确认</button></div>
+  </div>
+</div>
+<div class="modal-overlay" id="editModal" style="display:none;">
+  <div class="modal"><div class="modal-handle"></div><h3>✏️ 编辑忍者</h3>
+    <div class="form-group"><label>QQ群昵称</label><input class="form-input" id="editQQName" placeholder="QQ群昵称" maxlength="12"></div>
+    <div class="form-group"><label>游戏内名称</label><input class="form-input" id="editGameName" placeholder="游戏内名称" maxlength="16"></div>
+    <div class="form-group"><label>段位</label><input class="form-input" id="editRank" placeholder="如下忍、中忍、上忍、影" maxlength="8"></div>
+    <div class="form-row">
+      <div class="form-group" style="flex:1;"><label>胜场</label><input class="form-input" id="editWinsInput" type="number" min="0"></div>
+      <div class="form-group" style="flex:1;"><label>负场</label><input class="form-input" id="editLossesInput" type="number" min="0"></div>
+    </div>
+    <div class="modal-actions"><button class="btn btn-outline" onclick="closeEditModal()">取消</button><button class="btn btn-primary" onclick="saveEditPlayer()">保存</button></div>
+  </div>
+</div>
+<div class="modal-overlay" id="githubConfigModal" style="display:none;">
+  <div class="modal"><div class="modal-handle"></div><h3>⚙️ GitHub 共享配置</h3><p class="modal-sub">配置后所有人的数据将自动同步</p>
+    <div class="form-group"><label>GitHub 用户名</label><input class="form-input" id="ghUser" placeholder="你的GitHub用户名"></div>
+    <div class="form-group"><label>仓库名</label><input class="form-input" id="ghRepo" placeholder="如 naruto-rank"></div>
+    <div class="form-group"><label>Personal Access Token</label><input class="form-input" id="ghToken" type="password" placeholder="ghp_xxxxxxxxxxxx"><p style="font-size:10px;color:var(--text-secondary);margin-top:3px;">需勾选 repo 权限，仅存在管理员本地</p></div>
+    <div class="form-group"><label>分支</label><input class="form-input" id="ghBranch" value="main" placeholder="main"></div>
+    <div class="modal-actions"><button class="btn btn-outline" onclick="closeGitHubConfig()">取消</button><button class="btn btn-primary" onclick="saveGitHubConfig()">保存配置</button></div>
+  </div>
+</div>
+
+<script>
+// ==================== GitHub 共享存储 ====================
+const STORAGE_KEY='naruto_rank_v3';
+const DEFAULT_PASSWORD='admin123';
+
+let ghConfig={user:'',repo:'',token:'',branch:'main'};
+let cachedData=null;
+let syncTimer=null;
+
+function loadGhConfig(){
+  try{const r=localStorage.getItem('naruto_gh_config');if(r)ghConfig=JSON.parse(r);}catch(e){}
+}
+loadGhConfig();
+
+function isGhConfigured(){return !!(ghConfig.user&&ghConfig.repo&&ghConfig.token);}
+
+function getRawUrl(){return `https://raw.githubusercontent.com/${ghConfig.user}/${ghConfig.repo}/${ghConfig.branch}/data.json`;}
+function getApiUrl(){return `https://api.github.com/repos/${ghConfig.user}/${ghConfig.repo}/contents/data.json`;}
+
+async function loadSharedData(){
+  if(!isGhConfigured()) return loadLocalData();
+  try{
+    const res=await fetch(getRawUrl()+'?t='+Date.now(),{cache:'no-store'});
+    if(!res.ok) throw new Error('fetch failed');
+    const d=await res.json();
+    cachedData=d;
+    updateSyncStatus('synced');
+    return d;
+  }catch(e){
+    console.warn('GitHub load failed, using cache',e);
+    updateSyncStatus('error');
+    return cachedData||loadLocalData();
+  }
+}
+
+async function saveSharedData(d){
+  if(!isGhConfigured()){saveLocalData(d);return true;}
+  try{
+    let sha='';
+    try{
+      const getRes=await fetch(getApiUrl(),{headers:{Authorization:`Bearer ${ghConfig.token}`}});
+      if(getRes.ok){const info=await getRes.json();sha=info.sha;}
+    }catch(e){}
+    const json=JSON.stringify(d,null,2);
+    const content=btoa(unescape(encodeURIComponent(json)));
+    const body={message:'更新排行榜数据',content,branch:ghConfig.branch};
+    if(sha) body.sha=sha;
+    const putRes=await fetch(getApiUrl(),{method:'PUT',headers:{Authorization:`Bearer ${ghConfig.token}`,'Content-Type':'application/json'},body:JSON.stringify(body)});
+    if(!putRes.ok){const err=await putRes.json();throw new Error(err.message||'save failed');}
+    cachedData=d;
+    updateSyncStatus('synced');
+    return true;
+  }catch(e){
+    console.error('GitHub save failed',e);
+    saveLocalData(d);
+    updateSyncStatus('error');
+    showToast('同步失败，已保存到本地');
+    return false;
+  }
+}
+
+function loadLocalData(){
+  try{const r=localStorage.getItem(STORAGE_KEY);if(r) return JSON.parse(r);}catch(e){}
+  return {players:[],history:[],pendingChallenges:[],pendingPlayers:[],password:DEFAULT_PASSWORD,totalChallenges:0};
+}
+function saveLocalData(d){localStorage.setItem(STORAGE_KEY,JSON.stringify(d));}
+
+function updateSyncStatus(state){
+  const dots=document.querySelectorAll('.sync-dot');
+  dots.forEach(dot=>{dot.classList.remove('syncing');dot.style.background=state==='synced'?'#4caf84':state==='syncing'?'#ff8c42':'var(--text-secondary)';});
+  const texts=document.querySelectorAll('.sync-status');
+  texts.forEach(t=>{
+    if(t.id==='globalSyncStatus'){t.innerHTML=`<span class="sync-dot" style="background:${isGhConfigured()?'#4caf84':'var(--text-secondary)'};"></span> ${isGhConfigured()?'数据共享已配置':'未配置共享数据'}`;return;}
+    t.innerHTML=`<span class="sync-dot" style="background:${state==='synced'?'#4caf84':state==='syncing'?'#ff8c42':'var(--text-secondary)'};${state==='syncing'?'animation:pulse 1s infinite;':''}"></span> ${state==='synced'?'数据已同步':state==='syncing'?'同步中...':'同步失败'}`;
+  });
+}
+
+// 初始化演示数据
+async function initDemo(){
+  let d=await loadSharedData();
+  if(d.players.length>0) return d;
+  d.players=[
+    {id:'d1',qqName:'鸣人',gameName:'Naruto_Uzumaki',rank:'影',wins:12,losses:3},
+    {id:'d2',qqName:'佐助',gameName:'Sasuke_Uchiha',rank:'影',wins:10,losses:4},
+    {id:'d3',qqName:'卡卡西',gameName:'Kakashi',rank:'上忍',wins:8,losses:5},
+    {id:'d4',qqName:'我爱罗',gameName:'Gaara',rank:'上忍',wins:6,losses:6},
+    {id:'d5',qqName:'宁次',gameName:'Neji',rank:'中忍',wins:4,losses:8},
+    {id:'d6',qqName:'小李',gameName:'Rock_Lee',rank:'中忍',wins:2,losses:10},
+  ];
+  d.password=DEFAULT_PASSWORD;d.totalChallenges=0;d.history=[];d.pendingChallenges=[];d.pendingPlayers=[];
+  if(isGhConfigured()){await saveSharedData(d);}else{saveLocalData(d);}
+  return d;
+}
+
+// 自动刷新
+function startAutoRefresh(){
+  if(syncTimer) clearInterval(syncTimer);
+  syncTimer=setInterval(async()=>{
+    if(!isGhConfigured()) return;
+    updateSyncStatus('syncing');
+    const d=await loadSharedData();
+    cachedData=d;
+    if(document.getElementById('page-user-panel').classList.contains('active')) renderUserPanel();
+    if(document.getElementById('page-guest-view').classList.contains('active')) renderGuestView();
+    if(document.getElementById('page-admin-panel').classList.contains('active')) renderAdminTabs();
+  },8000);
+}
+startAutoRefresh();
+
+// ==================== 页面导航 ====================
+function showPage(id){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));const pg=document.getElementById(id);if(pg)pg.classList.add('active');}
+function goEntry(){showPage('page-entry');updateSyncStatus('synced');}
+function goAdmin(){showPage('page-admin-login');document.getElementById('adminPasswordInput').value='';setTimeout(()=>document.getElementById('adminPasswordInput').focus(),200);}
+function goUser(){showPage('page-user-entry');document.getElementById('userQQName').value='';document.getElementById('userGameName').value='';setTimeout(()=>document.getElementById('userQQName').focus(),200);updateSyncStatus('synced');}
+
+// ==================== GitHub 配置 ====================
+function openGitHubConfig(){
+  document.getElementById('ghUser').value=ghConfig.user;
+  document.getElementById('ghRepo').value=ghConfig.repo;
+  document.getElementById('ghToken').value=ghConfig.token;
+  document.getElementById('ghBranch').value=ghConfig.branch||'main';
+  document.getElementById('githubConfigModal').style.display='flex';
+}
+function closeGitHubConfig(){document.getElementById('githubConfigModal').style.display='none';}
+async function saveGitHubConfig(){
+  ghConfig.user=document.getElementById('ghUser').value.trim();
+  ghConfig.repo=document.getElementById('ghRepo').value.trim();
+  ghConfig.token=document.getElementById('ghToken').value.trim();
+  ghConfig.branch=document.getElementById('ghBranch').value.trim()||'main';
+  localStorage.setItem('naruto_gh_config',JSON.stringify(ghConfig));
+  closeGitHubConfig();
+  if(isGhConfigured()){
+    updateSyncStatus('syncing');
+    const d=loadLocalData();
+    await saveSharedData(d);
+    updateSyncStatus('synced');
+    showToast('GitHub配置已保存，数据已同步');
+  }else{
+    showToast('配置已清除，使用本地存储');
+  }
+  updateSyncStatus('synced');
+  if(document.getElementById('page-admin-panel').classList.contains('active')) renderAdminTabs();
+}
+
+// ==================== 管理员 ====================
+let adminLoggedIn=false;
+async function adminLogin(){
+  const pw=document.getElementById('adminPasswordInput').value.trim();
+  const d=await loadSharedData();
+  if(!pw){showToast('请输入密码');return;}
+  if(pw!==d.password){showToast('密码错误');return;}
+  adminLoggedIn=true;showPage('page-admin-panel');switchAdminTab('approval');
+}
+
+function adminLogout(){adminLoggedIn=false;showPage('page-entry');}
+
+async function switchAdminTab(tab){
+  document.querySelectorAll('#page-admin-panel .tab-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('#page-admin-panel .tab-content').forEach(c=>c.classList.remove('active'));
+  const btn=document.querySelector(`#page-admin-panel .tab-btn[onclick="switchAdminTab('${tab}')"]`);
+  if(btn)btn.classList.add('active');
+  document.getElementById('tab-'+tab).classList.add('active');
+  await renderAdminTabs();
+}
+
+async function renderAdminTabs(){
+  const d=await loadSharedData();
+  document.getElementById('adminTotalPlayers').textContent=d.players.length;
+  document.getElementById('adminTotalChallenges').textContent=d.totalChallenges;
+  document.getElementById('adminPendingTotal').textContent=d.pendingPlayers.length+d.pendingChallenges.filter(pc=>pc.status==='pending_approval').length+d.pendingChallenges.filter(pc=>pc.status==='pending_result').length;
+  renderApprovalTab(d);renderJudgeTab(d);renderManageTab(d);
+}
+
+function renderApprovalTab(d){
+  const c=document.getElementById('tab-approval');let h='';
+  if(d.pendingPlayers.length>0){
+    h+=`<div class="pending-section" style="background:rgba(255,180,70,0.06);border-color:rgba(255,180,70,0.25);"><div class="pending-header"><span class="pending-count" style="background:#ff8c42;">${d.pendingPlayers.length}</span><span class="pending-title" style="color:#ff8c42;">待审核新忍者</span></div>`;
+    d.pendingPlayers.forEach(pp=>{h+=`<div class="pending-item"><div class="pending-info"><div style="font-size:14px;font-weight:600;">${esc(pp.qqName)} <span style="font-size:11px;color:var(--accent);">${esc(pp.gameName)}</span></div><div class="pending-meta">申请时间：${fmtTime(pp.time)}</div></div><div class="pending-actions"><button class="btn btn-approve" onclick="adminApprovePlayer('${pp.id}')">✅ 通过</button><button class="btn btn-reject" onclick="adminRejectPlayer('${pp.id}')">❌ 拒绝</button></div></div>`;});
+    h+=`</div>`;
+  }
+  const pa=d.pendingChallenges.filter(pc=>pc.status==='pending_approval');
+  if(pa.length>0){
+    h+=`<div class="pending-section"><div class="pending-header"><span class="pending-count">${pa.length}</span><span class="pending-title">待审批挑战</span></div>`;
+    pa.forEach(pc=>{h+=`<div class="pending-item"><div class="pending-info"><div class="pending-vs"><span>${esc(pc.challengerName)}</span><span class="vs-icon">⚔️</span><span>${esc(pc.targetName)}</span></div><div class="pending-meta">排名第${pc.challengerRank} → 挑战排名第${pc.targetRank} · ${fmtTime(pc.time)}</div>${pc.evidence?`<div class="pending-evidence">📎 ${esc(pc.evidence)}</div>`:''}${pc.note?`<div class="pending-meta">📝 ${esc(pc.note)}</div>`:''}</div><div class="pending-actions"><button class="btn btn-approve" onclick="adminApproveChallenge('${pc.id}')">✅ 同意</button><button class="btn btn-reject" onclick="adminRejectChallenge('${pc.id}')">❌ 驳回</button></div></div>`;});
+    h+=`</div>`;
+  }
+  c.innerHTML=h||'<div class="empty-state"><span class="empty-icon">✅</span><p>暂无待审批事项</p></div>';
+}
+
+function renderJudgeTab(d){
+  const c=document.getElementById('tab-judge');
+  const pr=d.pendingChallenges.filter(pc=>pc.status==='pending_result');
+  if(pr.length===0){c.innerHTML='<div class="empty-state"><span class="empty-icon">⚔️</span><p>暂无待裁决挑战</p></div>';return;}
+  let h=`<div class="pending-section"><div class="pending-header"><span class="pending-count">${pr.length}</span><span class="pending-title">待裁决挑战</span></div>`;
+  pr.forEach(pc=>{h+=`<div class="pending-item"><div class="pending-info"><div class="pending-vs"><span>${esc(pc.challengerName)}</span><span class="vs-icon">⚔️</span><span>${esc(pc.targetName)}</span></div><div class="pending-meta">排名第${pc.challengerRank} → 挑战排名第${pc.targetRank} · ${fmtTime(pc.time)}</div>${pc.evidence?`<div class="pending-evidence">📎 ${esc(pc.evidence)}</div>`:''}${pc.note?`<div class="pending-meta">📝 ${esc(pc.note)}</div>`:''}</div><div class="pending-actions"><button class="btn btn-approve" onclick="adminJudgeResult('${pc.id}',true)">🏆 挑战者胜</button><button class="btn btn-reject" onclick="adminJudgeResult('${pc.id}',false)">💔 挑战者败</button></div></div>`;});
+  h+=`</div>`;c.innerHTML=h;
+}
+
+function renderManageTab(d){
+  const c=document.getElementById('tab-manage');
+  let h=`<div class="form-row" style="margin-bottom:12px;"><input class="form-input" id="adminAddQQ" placeholder="QQ群昵称" maxlength="12" style="flex:1;"><input class="form-input" id="adminAddGame" placeholder="游戏名称" maxlength="16" style="flex:1;"><button class="btn btn-primary btn-small" onclick="adminAddPlayer()" style="flex:none;">＋ 添加</button></div>`;
+  if(d.players.length===0){h+='<div class="empty-state"><span class="empty-icon">🍥</span><p>还没有忍者</p></div>';}
+  else{
+    h+=d.players.map((p,i)=>{
+      let bc='normal',bi=i+1;
+      if(i===0){bc='top1';bi='👑';}else if(i===1){bc='top2';bi='🥈';}else if(i===2){bc='top3';bi='🥉';}
+      const wr=(p.wins+p.losses)>0?Math.round(p.wins/(p.wins+p.losses)*100):0;
+      return `<div class="rank-card"><div class="rank-badge ${bc}">${bi}</div><div class="player-info"><div class="player-name">${esc(p.qqName)} <span class="game-name">${esc(p.gameName)}</span></div><div class="player-record"><span class="wins">${p.wins}胜</span> / <span class="losses">${p.losses}负</span> · 胜率${wr}%</div></div>${p.rank?`<span class="player-rank-tag">${esc(p.rank)}</span>`:''}<div class="admin-actions">${i>0?`<button class="btn btn-outline btn-icon" onclick="adminMoveUp(${i})">↑</button>`:'<span style="width:34px;"></span>'}${i<d.players.length-1?`<button class="btn btn-outline btn-icon" onclick="adminMoveDown(${i})">↓</button>`:'<span style="width:34px;"></span>'}<button class="btn btn-outline btn-icon" onclick="openEditPlayer('${p.id}')">✏️</button><button class="btn btn-outline btn-icon" onclick="adminDeletePlayer('${p.id}')" style="color:var(--lose);">✕</button></div></div>`;
+    }).join('');
+  }
+  c.innerHTML=h;
+}
+
+// ==================== 管理员操作 ====================
+async function adminApprovePlayer(pid){
+  const d=await loadSharedData();const idx=d.pendingPlayers.findIndex(pp=>pp.id===pid);if(idx===-1)return;
+  const pp=d.pendingPlayers[idx];
+  if(d.players.some(p=>p.qqName===pp.qqName)){d.pendingPlayers.splice(idx,1);await saveSharedData(d);renderAdminTabs();showToast('已存在同名忍者');return;}
+  d.players.push({id:pp.id,qqName:pp.qqName,gameName:pp.gameName,rank:'',wins:0,losses:0});
+  d.pendingPlayers.splice(idx,1);await saveSharedData(d);renderAdminTabs();showToast(`已通过「${pp.qqName}」`);
+}
+async function adminRejectPlayer(pid){
+  const d=await loadSharedData();const idx=d.pendingPlayers.findIndex(pp=>pp.id===pid);if(idx===-1)return;
+  const pp=d.pendingPlayers[idx];d.pendingPlayers.splice(idx,1);await saveSharedData(d);renderAdminTabs();showToast(`已拒绝「${pp.qqName}」`);
+}
+async function adminApproveChallenge(cid){
+  const d=await loadSharedData();const pc=d.pendingChallenges.find(pc=>pc.id===cid);if(!pc)return;
+  pc.status='pending_result';await saveSharedData(d);renderAdminTabs();showToast('挑战已通过，进入待裁决');
+}
+async function adminRejectChallenge(cid){
+  const d=await loadSharedData();const idx=d.pendingChallenges.findIndex(pc=>pc.id===cid);if(idx===-1)return;
+  d.pendingChallenges.splice(idx,1);await saveSharedData(d);renderAdminTabs();showToast('挑战已驳回');
+}
+async function adminJudgeResult(cid,won){
+  const d=await loadSharedData();const idx=d.pendingChallenges.findIndex(pc=>pc.id===cid);if(idx===-1)return;
+  const pc=d.pendingChallenges[idx];
+  const cIdx=d.players.findIndex(p=>p.id===pc.challengerId);
+  const tIdx=d.players.findIndex(p=>p.id===pc.targetId);
+  if(cIdx===-1||tIdx===-1){d.pendingChallenges.splice(idx,1);await saveSharedData(d);renderAdminTabs();showToast('忍者已不存在');return;}
+  const challenger=d.players[cIdx],target=d.players[tIdx];
+  if(won){const[moved]=d.players.splice(cIdx,1);d.players.splice(tIdx,0,moved);challenger.wins++;target.losses++;}
+  else{challenger.losses++;target.wins++;if(cIdx<d.players.length-1){[d.players[cIdx],d.players[cIdx+1]]=[d.players[cIdx+1],d.players[cIdx]];}}
+  d.pendingChallenges.splice(idx,1);d.totalChallenges++;
+  d.history.unshift({id:pc.id,challengerId:pc.challengerId,challengerName:pc.challengerName,targetId:pc.targetId,targetName:pc.targetName,won,notified:false,time:Date.now()});
+  if(d.history.length>50)d.history=d.history.slice(0,50);
+  await saveSharedData(d);renderAdminTabs();
+  showToast(won?`已判定「${pc.challengerName}」挑战成功`:`已判定「${pc.challengerName}」挑战失败`);
+}
+async function adminAddPlayer(){
+  const qq=document.getElementById('adminAddQQ').value.trim();
+  const game=document.getElementById('adminAddGame').value.trim();
+  if(!qq){showToast('请输入QQ群昵称');return;}
+  const d=await loadSharedData();
+  if(d.players.some(p=>p.qqName===qq)){showToast('该忍者已存在');return;}
+  d.players.push({id:genId(),qqName:qq,gameName:game||'',rank:'',wins:0,losses:0});
+  await saveSharedData(d);document.getElementById('adminAddQQ').value='';document.getElementById('adminAddGame').value='';
+  renderAdminTabs();showToast(`已添加「${qq}」`);
+}
+async function adminDeletePlayer(id){
+  const d=await loadSharedData();const p=d.players.find(x=>x.id===id);if(!p)return;
+  if(!confirm(`确定删除「${p.qqName}」吗？`))return;
+  d.players=d.players.filter(x=>x.id!==id);
+  d.history=d.history.filter(h=>h.challengerId!==id&&h.targetId!==id);
+  d.pendingChallenges=d.pendingChallenges.filter(pc=>pc.challengerId!==id&&pc.targetId!==id);
+  await saveSharedData(d);renderAdminTabs();showToast(`已删除「${p.qqName}」`);
+}
+async function adminMoveUp(i){if(i<=0)return;const d=await loadSharedData();[d.players[i-1],d.players[i]]=[d.players[i],d.players[i-1]];await saveSharedData(d);renderAdminTabs();}
+async function adminMoveDown(i){const d=await loadSharedData();if(i>=d.players.length-1)return;[d.players[i],d.players[i+1]]=[d.players[i+1],d.players[i]];await saveSharedData(d);renderAdminTabs();}
+async function adminReset(){
+  if(confirm('确定重置全部数据吗？')){
+    if(isGhConfigured()){
+      await saveSharedData({players:[],history:[],pendingChallenges:[],pendingPlayers:[],password:DEFAULT_PASSWORD,totalChallenges:0});
+      await initDemo();
+    }else{localStorage.removeItem(STORAGE_KEY);}
+    switchAdminTab('approval');showToast('数据已重置');
+  }
+}
+
+// ==================== 编辑玩家 ====================
+let editingPlayerId=null;
+async function openEditPlayer(id){
+  const d=await loadSharedData();const p=d.players.find(x=>x.id===id);if(!p)return;editingPlayerId=id;
+  document.getElementById('editQQName').value=p.qqName;document.getElementById('editGameName').value=p.gameName||'';
+  document.getElementById('editRank').value=p.rank||'';document.getElementById('editWinsInput').value=p.wins;document.getElementById('editLossesInput').value=p.losses;
+  document.getElementById('editModal').style.display='flex';
+}
+function closeEditModal(){document.getElementById('editModal').style.display='none';editingPlayerId=null;}
+async function saveEditPlayer(){
+  if(!editingPlayerId)return;const d=await loadSharedData();const p=d.players.find(x=>x.id===editingPlayerId);if(!p)return;
+  const qq=document.getElementById('editQQName').value.trim();
+  const game=document.getElementById('editGameName').value.trim();
+  const rank=document.getElementById('editRank').value.trim();
+  const wins=parseInt(document.getElementById('editWinsInput').value)||0;
+  const losses=parseInt(document.getElementById('editLossesInput').value)||0;
+  if(!qq){showToast('QQ昵称不能为空');return;}
+  if(d.players.some(x=>x.id!==editingPlayerId&&x.qqName===qq)){showToast('昵称重复');return;}
+  p.qqName=qq;p.gameName=game;p.rank=rank;p.wins=Math.max(0,wins);p.losses=Math.max(0,losses);
+  await saveSharedData(d);closeEditModal();renderAdminTabs();showToast('保存成功');
+}
+
+// ==================== 修改密码 ====================
+function openChangePassword(){document.getElementById('oldPasswordInput').value='';document.getElementById('newPasswordInput').value='';document.getElementById('confirmPasswordInput').value='';document.getElementById('passwordModal').style.display='flex';}
+function closePasswordModal(){document.getElementById('passwordModal').style.display='none';}
+async function changePassword(){
+  const oldPwd=document.getElementById('oldPasswordInput').value.trim();
+  const newPwd=document.getElementById('newPasswordInput').value.trim();
+  const confirmPwd=document.getElementById('confirmPasswordInput').value.trim();
+  const d=await loadSharedData();
+  if(oldPwd!==d.password){showToast('当前密码错误');return;}
+  if(newPwd.length<4){showToast('新密码至少4位');return;}
+  if(newPwd!==confirmPwd){showToast('两次输入不一致');return;}
+  d.password=newPwd;await saveSharedData(d);closePasswordModal();showToast('密码修改成功');
+}
+
+// ==================== 玩家 ====================
+let currentUser=null;
+async function userEnter(){
+  const qqName=document.getElementById('userQQName').value.trim();
+  const gameName=document.getElementById('userGameName').value.trim();
+  if(!qqName){showToast('请输入QQ群昵称');return;}
+  const d=await loadSharedData();
+  let player=d.players.find(p=>p.qqName===qqName);
+  if(player){
+    if(gameName&&player.gameName!==gameName){player.gameName=gameName;await saveSharedData(d);}
+    currentUser={id:player.id,qqName:player.qqName,gameName:player.gameName};
+    showPage('page-user-panel');renderUserPanel();
+    checkUnreadResults(d,player);return;
+  }
+  const pending=d.pendingPlayers.find(p=>p.qqName===qqName);
+  if(pending){showToast('你的申请正在等待管理员审核');return;}
+  d.pendingPlayers.push({id:genId(),qqName,gameName:gameName||'',time:Date.now()});
+  await saveSharedData(d);showPendingApproval(qqName);
+}
+function showPendingApproval(name){
+  const overlay=document.getElementById('resultOverlay'),card=document.getElementById('resultCard');
+  card.innerHTML=`<span class="result-icon" style="animation:none;">📝</span><div class="result-title" style="color:var(--accent);">申请已提交</div><div class="result-detail"><span class="highlight">${esc(name)}</span> 的参赛申请已提交<br>请等待管理员审核通过后进入</div><button class="btn btn-primary" onclick="closeResult()" style="width:100%;">知道了</button>`;
+  overlay.style.display='flex';
+}
+function userLogout(){currentUser=null;showPage('page-user-entry');document.getElementById('userQQName').value='';document.getElementById('userGameName').value='';}
+async function checkUnreadResults(d,player){
+  const unread=d.history.filter(h=>h.challengerId===player.id&&!h.notified);
+  if(unread.length>0){const latest=unread[0];showResult(latest.won,latest.challengerName,latest.targetName);unread.forEach(h=>{h.notified=true;});await saveSharedData(d);}
+}
+
+async function renderUserPanel(){
+  if(!currentUser)return;
+  const d=await loadSharedData();
+  const player=d.players.find(p=>p.id===currentUser.id);
+  if(!player){userLogout();showToast('你已被管理员移除');return;}
+  currentUser.qqName=player.qqName;currentUser.gameName=player.gameName;
+  const rankIdx=d.players.findIndex(p=>p.id===currentUser.id);
+  const wr=(player.wins+player.losses)>0?Math.round(player.wins/(player.wins+player.losses)*100):0;
+  document.getElementById('userInfoBar').innerHTML=`<div class="user-avatar">${player.qqName.charAt(0)}</div><div class="user-detail"><div class="uname">${esc(player.qqName)} ${player.gameName?`<span style="font-size:11px;color:var(--accent);">${esc(player.gameName)}</span>`:''}</div><div class="ustats"><span class="wins">${player.wins}胜</span> / <span class="losses">${player.losses}负</span> · 胜率${wr}% ${player.rank?`· ${esc(player.rank)}`:''}</div></div><div class="user-rank">#${rankIdx+1}</div>`;
+  const container=document.getElementById('userRankList');
+  if(d.players.length===0){container.innerHTML='<div class="empty-state"><span class="empty-icon">🍥</span><p>暂无忍者</p></div>';return;}
+  const myPendingChallenge=d.pendingChallenges.find(pc=>pc.challengerId===currentUser.id);
+  let bannerHTML='';
+  if(myPendingChallenge){
+    const statusText=myPendingChallenge.status==='pending_approval'?'等待管理员审批':'对战中，等待管理员裁决';
+    bannerHTML=`<div class="pending-banner"><span>📨</span><span>挑战「<strong>${esc(myPendingChallenge.targetName)}</strong>」${statusText}...</span></div>`;
+  }
+  const canChallenge=rankIdx>0&&!myPendingChallenge;
+  const targetPlayer=canChallenge?d.players[rankIdx-1]:null;
+  container.innerHTML=bannerHTML+d.players.map((p,i)=>{
+    let bc='normal',bi=i+1;
+    if(i===0){bc='top1';bi='👑';}else if(i===1){bc='top2';bi='🥈';}else if(i===2){bc='top3';bi='🥉';}
+    const isMe=p.id===currentUser.id;
+    const isTarget=targetPlayer&&p.id===targetPlayer.id;
+    const pwr=(p.wins+p.losses)>0?Math.round(p.wins/(p.wins+p.losses)*100):0;
+    let extraClass='',actionBtn='';
+    if(isMe)extraClass=' me';
+    if(isTarget&&canChallenge){actionBtn=`<button class="challenge-btn" onclick="event.stopPropagation();openChallengeForm('${p.id}')">⚔️ 挑战</button>`;}
+    else if(isMe&&rankIdx===0){actionBtn=`<span style="font-size:11px;color:var(--gold);font-weight:600;flex-shrink:0;">👑 榜首</span>`;}
+    else if(isMe&&myPendingChallenge){actionBtn=`<span style="font-size:11px;color:var(--text-secondary);flex-shrink:0;">⏳ 审核中</span>`;}
+    return `<div class="rank-card${extraClass}"><div class="rank-badge ${bc}">${bi}</div><div class="player-info"><div class="player-name">${esc(p.qqName)} <span class="game-name">${esc(p.gameName)}</span>${isMe?' (你)':''}</div><div class="player-record"><span class="wins">${p.wins}胜</span> / <span class="losses">${p.losses}负</span> · 胜率${pwr}% ${p.rank?`· ${esc(p.rank)}`:''}</div></div>${p.rank?`<span class="player-rank-tag">${esc(p.rank)}</span>`:''}${actionBtn}</div>`;
+  }).join('');
+}
+
+// ==================== 挑战流程 ====================
+let challengeTargetId=null;
+async function openChallengeForm(targetId){
+  if(!currentUser)return;
+  const d=await loadSharedData();
+  const target=d.players.find(p=>p.id===targetId);
+  const me=d.players.find(p=>p.id===currentUser.id);
+  if(!target||!me)return;
+  challengeTargetId=targetId;
+  const myRank=d.players.findIndex(p=>p.id===currentUser.id);
+  document.getElementById('challengeFormSub').textContent=`「${me.qqName}」排名第${myRank+1} → 挑战排名第${myRank}的「${target.qqName}」`;
+  document.getElementById('challengeEvidence').value='';
+  document.getElementById('challengeNote').value='';
+  document.getElementById('challengeFormModal').style.display='flex';
+}
+function closeChallengeForm(){document.getElementById('challengeFormModal').style.display='none';challengeTargetId=null;}
+async function submitChallenge(){
+  if(!currentUser||!challengeTargetId)return;
+  const d=await loadSharedData();
+  const challengerIdx=d.players.findIndex(p=>p.id===currentUser.id);
+  const targetIdx=d.players.findIndex(p=>p.id===challengeTargetId);
+  if(challengerIdx===-1||targetIdx===-1||challengerIdx<=targetIdx)return;
+  if(targetIdx!==challengerIdx-1){showToast('只能挑战排名高一位的对手');return;}
+  if(d.pendingChallenges.some(pc=>pc.challengerId===currentUser.id)){showToast('你已有待处理的挑战');return;}
+  const challenger=d.players[challengerIdx],target=d.players[targetIdx];
+  const evidence=document.getElementById('challengeEvidence').value.trim();
+  const note=document.getElementById('challengeNote').value.trim();
+  d.pendingChallenges.unshift({id:genId(),challengerId:challenger.id,challengerName:challenger.qqName,targetId:target.id,targetName:target.qqName,challengerRank:challengerIdx+1,targetRank:targetIdx+1,evidence,note,status:'pending_approval',time:Date.now()});
+  await saveSharedData(d);closeChallengeForm();renderUserPanel();
+  const overlay=document.getElementById('resultOverlay'),card=document.getElementById('resultCard');
+  card.innerHTML=`<span class="result-icon" style="animation:none;">📨</span><div class="result-title" style="color:var(--accent);">挑战已提交</div><div class="result-detail"><span class="highlight">${esc(challenger.qqName)}</span> 挑战 <span class="highlight">${esc(target.qqName)}</span><br>请等待管理员审批</div><button class="btn btn-primary" onclick="closeResult()" style="width:100%;">知道了</button>`;
+  overlay.style.display='flex';
+}
+function showResult(won,cName,tName){
+  const overlay=document.getElementById('resultOverlay'),card=document.getElementById('resultCard');
+  card.innerHTML=won?`<span class="result-icon win">🎉</span><div class="result-title win">挑战成功！</div><div class="result-detail"><span class="highlight">${esc(cName)}</span> 击败了 <span class="highlight">${esc(tName)}</span><br>排名互换，晋升一位！</div><button class="btn btn-primary" onclick="closeResult()" style="width:100%;">知道了</button>`:`<span class="result-icon lose">💪</span><div class="result-title lose">挑战失败</div><div class="result-detail"><span class="highlight">${esc(cName)}</span> 未能击败 <span class="highlight">${esc(tName)}</span><br>排名下降一位，继续修炼！</div><button class="btn btn-primary" onclick="closeResult()" style="width:100%;">知道了</button>`;
+  overlay.style.display='flex';
+}
+function closeResult(){document.getElementById('resultOverlay').style.display='none';}
+
+// ==================== 访客排行榜 ====================
+async function viewRankOnly(){showPage('page-guest-view');renderGuestView();}
+function guestGoBack(){showPage('page-user-entry');}
+async function renderGuestView(){
+  const d=await loadSharedData();
+  document.getElementById('guestTotalPlayers').textContent=d.players.length;
+  document.getElementById('guestTotalChallenges').textContent=d.totalChallenges;
+  const c=document.getElementById('guestRankList');
+  if(d.players.length===0){c.innerHTML='<div class="empty-state"><span class="empty-icon">🍥</span><p>暂无忍者</p></div>';return;}
+  c.innerHTML=d.players.map((p,i)=>{
+    let bc='normal',bi=i+1;
+    if(i===0){bc='top1';bi='👑';}else if(i===1){bc='top2';bi='🥈';}else if(i===2){bc='top3';bi='🥉';}
+    const wr=(p.wins+p.losses)>0?Math.round(p.wins/(p.wins+p.losses)*100):0;
+    return `<div class="rank-card"><div class="rank-badge ${bc}">${bi}</div><div class="player-info"><div class="player-name">${esc(p.qqName)} <span class="game-name">${esc(p.gameName)}</span></div><div class="player-record"><span class="wins">${p.wins}胜</span> / <span class="losses">${p.losses}负</span> · 胜率${wr}% ${p.rank?`· ${esc(p.rank)}`:''}</div></div>${p.rank?`<span class="player-rank-tag">${esc(p.rank)}</span>`:''}</div>`;
+  }).join('');
+}
+
+// ==================== 历史记录 ====================
+async function openAdminHistory(){const d=await loadSharedData();renderHistory(d);document.getElementById('historyModal').style.display='flex';}
+function closeHistoryModal(){document.getElementById('historyModal').style.display='none';}
+function renderHistory(d){
+  const c=document.getElementById('historyList');
+  if(d.history.length===0){c.innerHTML='<div class="empty-state" style="padding:16px;"><p>暂无挑战记录</p></div>';return;}
+  c.innerHTML=d.history.map(h=>`<div class="history-item"><div class="h-result ${h.won?'win-h':'lose-h'}">${h.won?'🏆':'💔'}</div><div class="h-text"><strong>${esc(h.challengerName)}</strong> ${h.won?'击败了':'挑战'} <strong>${esc(h.targetName)}</strong> ${h.won?'✅':'❌'}</div><div class="h-time">${fmtTime(h.time)}</div></div>`).join('');
+}
+
+// ==================== 工具函数 ====================
+function genId(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6);}
+function esc(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML;}
+function fmtTime(ts){
+  const diff=Date.now()-ts;
+  if(diff<60000)return'刚刚';if(diff<3600000)return Math.floor(diff/60000)+'分钟前';if(diff<86400000)return Math.floor(diff/3600000)+'小时前';
+  const d=new Date(ts);return`${d.getMonth()+1}/${d.getDate()} ${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`;
+}
+function showToast(msg){
+  const existing=document.querySelector('.toast');if(existing)existing.remove();
+  const t=document.createElement('div');t.className='toast';t.textContent=msg;document.body.appendChild(t);setTimeout(()=>t.remove(),2000);
+}
+
+// ==================== 事件绑定 ====================
+document.addEventListener('click',e=>{
+  if(e.target.id==='challengeFormModal')closeChallengeForm();
+  if(e.target.id==='historyModal')closeHistoryModal();
+  if(e.target.id==='resultOverlay')closeResult();
+  if(e.target.id==='passwordModal')closePasswordModal();
+  if(e.target.id==='editModal')closeEditModal();
+  if(e.target.id==='githubConfigModal')closeGitHubConfig();
+});
+document.addEventListener('DOMContentLoaded',async()=>{
+  document.getElementById('adminPasswordInput').addEventListener('keydown',e=>{if(e.key==='Enter')adminLogin();});
+  document.getElementById('userQQName').addEventListener('keydown',e=>{if(e.key==='Enter')userEnter();});
+  document.getElementById('userGameName').addEventListener('keydown',e=>{if(e.key==='Enter')userEnter();});
+  await initDemo();
+  updateSyncStatus('synced');
+});
+</script>
+</body>
+</html>
