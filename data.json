@@ -9,6 +9,14 @@
       "losses": 3
     },
     {
+      "id": "d2",
+      "qqName": "佐助",
+      "gameName": "Sasuke_Uchiha",
+      "rank": "影",
+      "wins": 10,
+      "losses": 4
+    },
+    {
       "id": "d3",
       "qqName": "卡卡西",
       "gameName": "Kakashi",
@@ -43,6 +51,13 @@
   ],
   "history": [],
   "pendingChallenges": [],
-  "pendingPlayers": [],
+  "pendingPlayers": [
+    {
+      "id": "mttw93heujw8",
+      "qqName": "乐乐",
+      "gameName": "乐乐",
+      "time": 1788945989090
+    }
+  ],
   "totalChallenges": 0
 }
