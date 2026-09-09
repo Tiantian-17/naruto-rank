@@ -298,45 +298,69 @@ loadGhConfig();
 function getRawUrl(){return `https://raw.githubusercontent.com/${GH_OWNER}/${GH_REPO}/${GH_BRANCH}/data.json`;}
 function getApiUrl(){return `https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/data.json`;}
 
+// 通过 GitHub API 读取服务器上的最新数据与版本号（绕过 CDN 缓存）
+async function fetchLatestFromServer(){
+  if(!ghConfig.token) throw new Error('no token');
+  const res=await fetch(getApiUrl(),{headers:{Authorization:`Bearer ${ghConfig.token}`}});
+  if(!res.ok) throw new Error('get failed '+res.status);
+  const info=await res.json();
+  const json=decodeURIComponent(escape(atob(info.content)));
+  return {data:JSON.parse(json),sha:info.sha};
+}
+
 async function loadSharedData(){
   try{
-    const res=await fetch(getRawUrl()+'?t='+Date.now(),{cache:'no-store'});
-    if(!res.ok) throw new Error('fetch failed');
-    const d=await res.json();
-    cachedData=d;
+    const latest=await fetchLatestFromServer();
+    cachedData=latest.data;
     updateSyncStatus('synced');
-    return d;
+    return latest.data;
   }catch(e){
+    // 回退到 raw + 本地缓存
+    try{
+      const res=await fetch(getRawUrl()+'?t='+Date.now(),{cache:'no-store'});
+      if(res.ok){const d=await res.json();cachedData=d;updateSyncStatus('synced');return d;}
+    }catch(e2){}
     console.warn('GitHub load failed, using cache',e);
     updateSyncStatus('error');
     return cachedData||loadLocalData();
   }
 }
 
+// 写入前先拉取服务器最新版本，将本次改动合并进去，再做覆盖，避免多人操作互相覆盖；遇到冲突自动重试
 async function saveSharedData(d){
   if(!ghConfig.token){saveLocalData(d);showToast('未配置写入令牌，请使用群内分享链接打开');return false;}
-  try{
-    let sha='';
+  for(let attempt=0;attempt<3;attempt++){
     try{
-      const getRes=await fetch(getApiUrl(),{headers:{Authorization:`Bearer ${ghConfig.token}`}});
-      if(getRes.ok){const info=await getRes.json();sha=info.sha;}
-    }catch(e){}
-    const json=JSON.stringify(d,null,2);
-    const content=btoa(unescape(encodeURIComponent(json)));
-    const body={message:'更新排行榜数据',content,branch:GH_BRANCH};
-    if(sha) body.sha=sha;
-    const putRes=await fetch(getApiUrl(),{method:'PUT',headers:{Authorization:`Bearer ${ghConfig.token}`,'Content-Type':'application/json'},body:JSON.stringify(body)});
-    if(!putRes.ok){const err=await putRes.json();throw new Error(err.message||'save failed');}
-    cachedData=d;
-    updateSyncStatus('synced');
-    return true;
-  }catch(e){
-    console.error('GitHub save failed',e);
-    saveLocalData(d);
-    updateSyncStatus('error');
-    showToast('同步失败，已保存到本地');
-    return false;
+      let sha='', base=null;
+      try{const latest=await fetchLatestFromServer();sha=latest.sha;base=latest.data;}catch(e){}
+      const merged=base||{players:[],history:[],pendingChallenges:[],pendingPlayers:[],totalChallenges:0};
+      // 以本次数据为准，但保留服务器上他人提交的字段，避免丢数据
+      merged.players=(d.players&&d.players.length!==undefined?d.players:merged.players)||[];
+      if(Array.isArray(d.history))merged.history=d.history;
+      if(Array.isArray(d.pendingChallenges))merged.pendingChallenges=d.pendingChallenges;
+      if(Array.isArray(d.pendingPlayers))merged.pendingPlayers=d.pendingPlayers;
+      if(typeof d.totalChallenges==='number')merged.totalChallenges=d.totalChallenges;
+      const json=JSON.stringify({...merged},null,2);
+      const content=btoa(unescape(encodeURIComponent(json)));
+      const body={message:'更新排行榜数据',content,branch:GH_BRANCH};
+      if(sha) body.sha=sha;
+      const putRes=await fetch(getApiUrl(),{method:'PUT',headers:{Authorization:`Bearer ${ghConfig.token}`,'Content-Type':'application/json'},body:JSON.stringify(body)});
+      if(putRes.ok){cachedData={...merged};updateSyncStatus('synced');return true;}
+      if(putRes.status===409){continue;} // 版本冲突，重试
+      const err=await putRes.json().catch(()=>({message:'save failed'}));
+      throw new Error(err.message||'save failed');
+    }catch(e){
+      if(attempt===2){ // 最后一次仍失败才报错
+        console.error('GitHub save failed',e);
+        saveLocalData(d);
+        updateSyncStatus('error');
+        showToast('同步失败，已保存到本地');
+        return false;
+      }
+    }
   }
+  updateSyncStatus('error');
+  return false;
 }
 
 function loadLocalData(){
@@ -382,7 +406,7 @@ function startAutoRefresh(){
     if(document.getElementById('page-user-panel').classList.contains('active')) renderUserPanel();
     if(document.getElementById('page-guest-view').classList.contains('active')) renderGuestView();
     if(document.getElementById('page-admin-panel').classList.contains('active')) renderAdminTabs();
-  },8000);
+  },3000);
 }
 startAutoRefresh();
 
