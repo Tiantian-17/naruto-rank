@@ -7,17 +7,18 @@
       "rank": "",
       "wins": 0,
       "losses": 0
-    }
-  ],
-  "history": [],
-  "pendingChallenges": [],
-  "pendingPlayers": [
+    },
     {
       "id": "mttwohouna8y",
       "qqName": "拜托拜托",
       "gameName": "拜托拜托",
-      "time": 1788946707342
+      "rank": "",
+      "wins": 0,
+      "losses": 0
     }
   ],
+  "history": [],
+  "pendingChallenges": [],
+  "pendingPlayers": [],
   "totalChallenges": 0
 }
